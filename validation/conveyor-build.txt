@@ -1,0 +1,22 @@
+
+> warehouse-digital-twin-frontend@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 741 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                            0.70 kB │ gzip:   0.43 kB
+dist/assets/Admin-Dk5lqkmx.css            17.32 kB │ gzip:   3.71 kB
+dist/assets/WarehouseApp-C1XF3hNE.css     39.04 kB │ gzip:   8.01 kB
+dist/assets/index-gEoLjC9E.css            45.75 kB │ gzip:  10.35 kB
+dist/assets/Admin-CqsJegwS.js             23.16 kB │ gzip:   7.23 kB
+dist/assets/index-DaSjxyUM.js            482.83 kB │ gzip:  98.78 kB
+dist/assets/WarehouseApp-B-L5BRZf.js   1,332.25 kB │ gzip: 409.00 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.85s

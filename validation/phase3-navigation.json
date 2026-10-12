@@ -1,0 +1,86 @@
+{
+  "small": {
+    "layout_revision": "d357e030a148986d065a86bbb7b98ebdc98d78a0dba7aed012932c61b677c3d4",
+    "nodes": 58,
+    "sha256": {
+      "1": "14aa453009206cebedc5446b15ae01e1d1e9a5bcf1541346423b66b7c387eff5"
+    },
+    "valid": true,
+    "errors": [],
+    "floors": {
+      "1": {
+        "anchor": "SPAWN:R01",
+        "walkable_cells": 2814,
+        "forward_reachable": 2814,
+        "return_reachable": 2814,
+        "strongly_connected": true
+      }
+    },
+    "invalid_nodes": [],
+    "unreachable_nodes": [],
+    "isolated_zones": []
+  },
+  "medium": {
+    "layout_revision": "a9eeb5b088973775c3d7f76679efffe0c849b9f643a5d4fef7a8ad671051f9b4",
+    "nodes": 121,
+    "sha256": {
+      "1": "471b638265365711768b3c805434550b7bd1f1155b3ac91f9ec125a306c4c4a9"
+    },
+    "valid": true,
+    "errors": [],
+    "floors": {
+      "1": {
+        "anchor": "SPAWN:R01",
+        "walkable_cells": 5777,
+        "forward_reachable": 5777,
+        "return_reachable": 5777,
+        "strongly_connected": true
+      }
+    },
+    "invalid_nodes": [],
+    "unreachable_nodes": [],
+    "isolated_zones": []
+  },
+  "large": {
+    "layout_revision": "c01000dc3ac1d15d279c42286cc02fe1558eee4e1b3cd51cce02b00d4c78aa8d",
+    "nodes": 336,
+    "sha256": {
+      "1": "c0e63d95c7a795a05e96e65ae268676665384b8f27042b158fae8ef5e9fd24f2"
+    },
+    "valid": true,
+    "errors": [],
+    "floors": {
+      "1": {
+        "anchor": "SPAWN:R01",
+        "walkable_cells": 12046,
+        "forward_reachable": 12046,
+        "return_reachable": 12046,
+        "strongly_connected": true
+      }
+    },
+    "invalid_nodes": [],
+    "unreachable_nodes": [],
+    "isolated_zones": []
+  },
+  "mega": {
+    "layout_revision": "cbd79af4ddef44b50aea0cd01474092db91c56b3cae5522904cfb2d76bcb232f",
+    "nodes": 640,
+    "sha256": {
+      "1": "f6bb4a618ac443a4b9744f604cf75bb6a3d6f8ebd27c9f0dc5b14cb11cd47721"
+    },
+    "valid": true,
+    "errors": [],
+    "floors": {
+      "1": {
+        "anchor": "SPAWN:R01",
+        "walkable_cells": 21102,
+        "forward_reachable": 21102,
+        "return_reachable": 21102,
+        "strongly_connected": true
+      }
+    },
+    "invalid_nodes": [],
+    "unreachable_nodes": [],
+    "isolated_zones": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "mode": "read",
+  "target_requests_per_minute": 1000,
+  "scheduled_window_seconds": 10,
+  "elapsed_seconds": 9.908,
+  "requests": 166,
+  "successful_requests": 166,
+  "status_codes": {
+    "200": 166
+  },
+  "latency_ms": {
+    "p50": 2.2,
+    "p95": 3.5,
+    "p99": 5.37,
+    "max": 18.16
+  },
+  "note": "Gerçek HTTP ölçümü. 429 hız sınırı, 409 stok/kuyruk sınırı; 0 bağlantı hatası. Checkout gerçek test siparişleri bırakır."
+}

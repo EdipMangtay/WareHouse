@@ -1,0 +1,8 @@
+Captured verification result — 10 October 2026
+Command: npm --prefix frontend test -- --reporter=dot
+Vitest v4.1.11
+Test Files: 7 passed (7)
+Tests: 55 passed (55)
+Duration: 28.98s
+Includes 5 Phase 3 spatial graph / live movement contract tests.
+Warnings: existing Vite React esbuild/oxc deprecation messages.

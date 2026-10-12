@@ -1,0 +1,40 @@
+........................................................................ [ 66%]
+...................FFF...............                                    [100%]
+=================================== FAILURES ===================================
+_______ test_path_in_flight_waits_at_closure_and_resumes_after_reopening _______
+
+    def test_path_in_flight_waits_at_closure_and_resumes_after_reopening():
+        engine,r,rt=isolated_engine();goal=(41,13)
+        engine._plan_to(r,rt,cell_center(goal),'TO_SOURCE')
+>       assert r['path']
+E       assert []
+
+backend/tests/test_navigation.py:122: AssertionError
+___ test_plan_failure_retains_goal_and_clone_does_not_share_mutable_closures ___
+
+    def test_plan_failure_retains_goal_and_clone_does_not_share_mutable_closures():
+        engine,r,rt=isolated_engine()
+        cells=[(40,z) for z in range(engine.grid.rows) if engine.grid.cells[z*engine.grid.cols+40]!=1]
+        engine.change_navigation(1,cells,[],True)
+        engine._plan_to(r,rt,(41.5,13.5),'TO_SOURCE')
+>       assert not r['path'] and rt.target==(41,13)
+E       assert (not [] and (39, 15) == (41, 13)
+E         
+E         At index 0 diff: 39 != 41
+E         Use -v to get more diff)
+
+backend/tests/test_navigation.py:141: AssertionError
+__________________ test_zone_closure_survives_replan_fallback __________________
+
+    def test_zone_closure_survives_replan_fallback():
+        engine,r,rt=isolated_engine();engine.blocked_zones.add('B');engine._sync_navigation()
+>       goal=next(l for l in engine.layout['locations'] if l['kind']=='SHELF' and l['zone']=='B')['access_point']
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+backend/tests/test_navigation.py:149: StopIteration
+=========================== short test summary info ============================
+FAILED backend/tests/test_navigation.py::test_path_in_flight_waits_at_closure_and_resumes_after_reopening
+FAILED backend/tests/test_navigation.py::test_plan_failure_retains_goal_and_clone_does_not_share_mutable_closures
+FAILED backend/tests/test_navigation.py::test_zone_closure_survives_replan_fallback
+3 failed, 106 passed in 158.77s (0:02:38)

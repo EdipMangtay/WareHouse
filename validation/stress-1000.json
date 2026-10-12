@@ -1,0 +1,14 @@
+{
+  "running": false,
+  "rate_per_minute": 1000,
+  "created": 167,
+  "failed": 0,
+  "remaining_seconds": 0,
+  "duration_seconds": 10,
+  "started_at": "2026-10-05T18:10:44.376921+00:00",
+  "run_id": "8e013e47a97d4eab8160c60ebec00156",
+  "source": "internal_generator",
+  "stock_mode": "unlimited_test_inventory",
+  "elapsed_seconds": 10.007,
+  "achieved_rate_per_minute": 1001.32
+}

@@ -1,0 +1,16 @@
+
+> warehouse-digital-twin-frontend@0.1.0 test
+> vitest run
+
+9:07:34 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+9:07:34 PM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
+
+ RUN  v4.1.11 /Users/mangtay/Documents/Codex/2026-10-05/projemiz-bir-m-terinin-sipari-verdi/outputs/WareTwin/frontend
+
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  21:07:34
+   Duration  15.90s (transform 263ms, setup 0ms, import 606ms, tests 16.39s, environment 0ms)
+
