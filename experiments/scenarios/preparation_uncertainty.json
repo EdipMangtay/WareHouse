@@ -1,0 +1,11 @@
+{
+  "name": "preparation_uncertainty",
+  "config": {
+    "preparation_cv": 0.8
+  },
+  "demand": {
+    "count": 12,
+    "interval_s": 3
+  },
+  "horizon_s": 900
+}

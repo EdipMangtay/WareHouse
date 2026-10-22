@@ -1,0 +1,14 @@
+/* Opening operational tables must leave a usable 3D viewport. */
+.warehouse-console:not(.wc-scene-expanded) .wc-main {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.warehouse-console:not(.wc-scene-expanded) .wc-stage {
+  flex-shrink: 0;
+  min-height: min(64vh, 600px);
+}
+.warehouse-console .cv-panel {
+  max-height: 42dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}

@@ -1,3 +1,5 @@
+> Güncel kurulum, mimari ve deney komutları: [WareTwin README](README.md). Aşağıdaki metin önceki navigasyon sürümünün tarihsel rehberidir.
+
 # WareTwin — E-ticaret ve depo dijital ikizi
 
 Bu geliştirme kopyası, sağlanan WareTwin 3D depo simülatörünü e-ticaret ve operasyon yönetimiyle birleştirir. Masaüstündeki orijinal kaynak korunmuştur. Şehir ve drone simülasyonu bu sürümün kapsamı dışındadır.

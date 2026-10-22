@@ -1,0 +1,11 @@
+{
+  "name": "multi_zone",
+  "demand": {
+    "count": 10,
+    "interval_s": 4,
+    "min_items": 4,
+    "max_items": 4,
+    "distinct_zones": true
+  },
+  "horizon_s": 900
+}

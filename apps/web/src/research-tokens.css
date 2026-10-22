@@ -1,0 +1,22 @@
+.research-app {
+  --wt-ink: #213b43;
+  --wt-muted: #61757d;
+  --wt-soft: #eaf0f0;
+  --wt-canvas: #dce3e6;
+  --wt-paper: #fcfdfb;
+  --wt-border: #d7e0e1;
+  --wt-accent: #167782;
+  --wt-accent-soft: #e2f0ef;
+  --wt-navy: #172f38;
+  --wt-warning: #9b661b;
+  --wt-warning-bg: #fbf3e5;
+  --wt-error: #aa3e37;
+  --wt-error-bg: #fcedea;
+  --wt-success: #26715e;
+  --wt-ghost: #6b64a5;
+  --wt-radius: 9px;
+  --wt-shadow: 0 3px 18px #17333c0a;
+  --wt-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --wt-left: 246px;
+  --wt-right: 310px;
+}

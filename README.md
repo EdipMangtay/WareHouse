@@ -1,134 +1,140 @@
-<div align="center">
+# WareTwin — depo koordinasyon ve optimizasyon laboratuvarı
 
-<img src="docs/logo.svg" width="96" alt="WareTwin logo" />
+Aynı siparişin farklı bölgelerdeki ürünlerinin hazırlanmasını, ortak konveyöre
+katılmasını, birleştirilmesini ve paketlenmesini birlikte araştıran çalışan sistem.
+Operasyonun yetkili kaynağı Python çekirdeğidir. Web ve arayüzsüz deney çalıştırıcısı
+aynı `Simulation.step()` olay modelini kullanır.
 
-# WareTwin
+Mevcut mağaza, büyük depo, asansörler, kamera/yürüyüş kontrolleri ve robot görselleri
+korundu. Bunlar `#warehouse` / `#shop` üzerinden erişilen navigasyon/mağaza modudur.
+Yeni `#research` ekranı deneyler için ayrılmış bölge koridorlarını ve ortak bant
+modelini gösterir. Bu iki modelin ölçümleri karıştırılmaz.
 
-**AI Autonomous Warehouse Digital Twin**
+## Kurulum ve başlatma
 
-*A browser-native digital twin for simulating autonomous robot fleets, operational events, AI-driven decisions and what-if scenarios — before real-world deployment.*
-
-[![CI](https://img.shields.io/github/actions/workflow/status/WayneChou-bot/WareTwin/ci.yml?branch=main&label=CI&logo=github)](../../actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
-[![React](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white)](https://react.dev)
-[![Three.js](https://img.shields.io/badge/Three.js-R3F-000?logo=three.js&logoColor=white)](https://docs.pmnd.rs/react-three-fiber)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Python](https://img.shields.io/badge/Python-3.11-3776ab?logo=python&logoColor=white)](https://python.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://typescriptlang.org)
-
-[**Live demo**](https://ware-twin.vercel.app) · [Architecture](#-architecture) · [繁體中文](README.zh-TW.md)
-
-<img src="docs/demo.gif" width="880" alt="WareTwin demo: 20 AMRs running, compound failure injected, VLM detects a human, Copilot explains the throughput drop" />
-
-</div>
-
----
-
-## ✨ What it does
-
-WareTwin is a real-time **3D digital twin** of a 100 × 70 m warehouse with **20 autonomous mobile robots**, four zones, conveyors, packing stations, chargers and virtual CCTV. A deterministic simulation engine drives every robot through a full state machine (pick → transport → deliver, low-battery hand-off, obstacle re-planning); a Fleet Manager assigns tasks with **explainable scoring**; an AI layer watches the same state to **explain**, **perceive** and **predict**.
-
-It runs on a laptop with an integrated GPU — no RTX, no ROS, no cloud required.
-
-| | |
-|---|---|
-| 🏭 **3D Digital Twin** | React Three Fiber scene from a single `warehouse_layout.json`: instanced racks, AMRs with live A* paths, zone overlays, virtual CCTV, map / traffic / heatmap views. Quality tiers for integrated GPUs. |
-| 🤖 **Robot fleet simulation** | Deterministic 100 ms tick engine: FSM, 8-direction A* on a traffic-weighted grid, cell reservation with deadlock breakers, battery model with charger scheduling, conveyors that actually bottleneck stations. |
-| 🧠 **Explainable Fleet Manager** | Every assignment shows the selected robot's reasons (distance, battery, workload, congestion, health) and why each rejected candidate lost. |
-| ⚡ **Scenario injection** | Robot failure, low battery, conveyor stop, human intrusion (zone block + re-route), traffic congestion, camera outage, demand burst — one click each, all reversible. |
-| 🔮 **What-if simulation** | Clone the live twin, inject, run 1–10 min, compare 12 metrics against a baseline with the same random seed. Optionally replay across up to 5 seeds for a multi-seed range (min/median/max per KPI — the model's internal variability, not a statistical prediction interval), and diff the two event streams tick by tick to pinpoint the first divergence. The live system is never touched. |
-| 💬 **AI Operations Copilot** | Ask "Why is throughput dropping?" — the answer is grounded in the live state and cites robots / tasks / events you can click. LLM optional (see [AI modes](#-ai-modes)). |
-| 🏢 **Multi-floor & freight lifts** | A steel-framed mezzanine (thick slab, beams, columns, railings) with its own racks, zone, cameras and nav grid. Two freight lifts run a full backend-authoritative state machine — reservation, FIFO queues, sliding gates with safety interlocks (never moves with a gate open), smoothstep platform motion the robot rides on, cooldown, faults with automatic re-routing to the other lift. Robots go Queue → Board → Ride → Alight → Re-plan; floors change only inside that flow. |
-| 📡 **On-robot perception** | Each AMR carries a virtual 270° / 4 m LiDAR: it sees other robots and people (with line-of-sight occlusion by racks), slows down and holds distance instead of relying on grid reservations alone, and reports `CLEAR / SLOWING / STOPPED` plus the obstacles it sees — visualised as a sensor fan in 3D. |
-| 👁️ **VLM perception** | Send a virtual CCTV frame to a vision model → `{event, severity, bbox, confidence}` drawn on the feed. |
-| 🔌 **Real-time sync** | FastAPI + WebSocket: one `FULL` state, then per-tick `PATCH` diffs (~12 KB/s). If the backend is unreachable the browser falls back to a built-in TypeScript engine and keeps running. |
-| 📜 **Audit log & KPI** | Every event persisted to SQLite with filters and CSV/JSON export; throughput, utilization, on-time rate, wait time, congestion, energy. |
-
-## 🚀 Quick start
-
-**Prerequisites:** Node 18+, Python 3.11 (conda or venv).
+Python 3.11+ ve Node 20+ kullanın. Komutlar proje kökünden çalıştırılır.
 
 ```bash
-git clone https://github.com/WayneChou-bot/WareTwin.git && cd WareTwin
+python3 -m venv apps/api/.venv
+apps/api/.venv/bin/python -m pip install -r apps/api/requirements-dev.lock
+npm --prefix apps/web ci
 
-# backend
-cd backend
-conda create -n waretwin python=3.11 -y && conda activate waretwin   # or: python -m venv .venv
-pip install -r requirements-dev.txt   # runtime + pytest/httpx (requirements.lock = fully pinned, used by Render/Docker)
-uvicorn app.main:app --reload --port 8000
-
-# frontend (new terminal)
-cd frontend
-npm install
-npm run dev          # → http://localhost:5173
+# Mağaza, mevcut büyük depo, araştırma API'si ve web birlikte
+bash start.sh large
+# http://127.0.0.1:5173/#research
+# http://127.0.0.1:5173/#warehouse
+# http://127.0.0.1:8000/docs
 ```
 
-The top bar shows a blue **BACKEND** badge when the browser is connected to the Python engine, or an orange **LOCAL** badge when it is running the built-in fallback engine. On Windows, `dev.ps1` starts both.
+Bağımlılıklar zaten kuruluysa `npm run dev` de aynı başlatıcıyı çalıştırır.
+`backend → apps/api`, `frontend → apps/web` eski yollar için uyumluluk bağlantılarıdır.
+Windows'ta doğrudan `apps` yollarını ve `dev.ps1` dosyasını kullanın.
 
-Try injecting scenarios from the ⚡ panel — from normal operation to a compound failure handled end-to-end.
-
-## 🧩 AI modes
-
-The AI layer never needs a key to run. Set `OPENAI_API_KEY` in `backend/.env` (see `.env.example`) to switch from demo mode to live models:
-
-| | Demo mode (default, no key) | LLM mode |
-|---|---|---|
-| Copilot | Rule-based analysis of the live state (throughput, congestion, assignment, failure risk, improvement), with citations | `gpt-4o-mini`, JSON-schema output, citations restricted to ids present in the snapshot |
-| VLM | Simulated perception from ground truth (`sim` tag) | Vision model on the actual CCTV frame |
-| What-if recommendation | Templated two-liner from the deltas | LLM two-liner |
-
-The public demo runs in demo mode on purpose: it is fully functional and cannot run up an API bill.
-
-## 🏗 Architecture
-
-<img src="docs/architecture.svg" width="100%" alt="Architecture: browser (R3F twin, UI, store, local fallback engine) ↔ WebSocket ↔ FastAPI (SimEngine, What-if, AI, Twin State, SQLite)" />
-
-The **Twin State** is the single contract — `frontend/src/schema/twin_state.ts` ≡ `backend/app/schema.py` (Pydantic). Both engines share the same PRNG bit-for-bit, so the task stream and assignments are identical; What-if runs on the backend by deep-cloning the engine (state + FSM runtime + RNG).
-
-```
-WareTwin/
-├── frontend/        React 18 · TypeScript · Vite · React Three Fiber · zustand
-│   └── src/simulation/   TypeScript engine (local fallback)
-├── backend/         FastAPI · Pydantic v2 · asyncio · SQLite
-│   └── app/sim/          Python engine · A* · What-if
-│   └── app/ai/           Copilot · VLM
-├── docs/            schema · layout generator
-└── dev.ps1
-```
-
-## 🧪 Tests
+Araştırma API'sini mağaza/veritabanı olmadan ayrı çalıştırmak için iki terminal:
 
 ```bash
-cd backend && python -m pytest -q      # 52 tests: PRNG parity, A*, 20-min stress (no collisions < 0.5 m), determinism, lifts,
-                                        #           low battery, intrusion, gridlock-free compound failure, WS/REST, AI, What-if
-cd frontend && npm test                 # 32 tests: same engine contract in TypeScript
+apps/api/.venv/bin/python -m uvicorn apps.api.research:app --host 127.0.0.1 --port 8000
+npm run dev:web
 ```
 
-## ☁️ Deployment
+`#research` ekranında senaryo, politika ve iki tohumu seçip **Deneyi oluştur**
+düğmesine basın. Oturum başlangıçta duraklatılır. Devam, duraklat, tek adım,
+10 simülasyon saniyesi, sıfırlama, hız ve kesinti komutları sunucuya gönderilir.
+Bağlantı koparsa son doğrulanmış durum gösterilir; tarayıcı bağımsız motor başlatmaz.
 
-Frontend is static (Vercel / GitHub Pages); backend is a long-running WebSocket service (Render / Fly.io / any container — not serverless). `backend/render.yaml`, `Dockerfile`, `fly.toml` and `frontend/vercel.json` are included; set `VITE_WS_URL=wss://…/ws` on the frontend and `TWIN_CORS_ORIGINS` on the backend. Details in [`frontend/README.md`](frontend/README.md#部署).
+## Mevcut büyük depo arayüzü
 
-## 🔒 Running it in public
+`http://127.0.0.1:5173/#warehouse` mevcut raf, robot ve dış bant yerleşimini açar.
+Daraltılabilir operasyon listesi, seçime bağlı ayrıntılar, sipariş/bileşen takibi,
+konveyör ve paketleme durumları, kamera/katman kontrolleri ile filtreli olay ve
+karar kayıtları bu ekrandadır. 3D sahne ve listeler aynı seçimi kullanır;
+veriler mevcut motor ve commerce servisinden gelir. Bağlantı kesildiğinde eski
+veri işaretlenir ve komutlar kapanır.
 
-The hosted demo is deliberately a **single shared simulation** — every visitor sees the same warehouse and can inject the same failures, which is the point of the demo. To keep that safe the backend ships with a small guard layer (`backend/app/guard.py`):
+[Kullanım, veri kaynakları ve dosya rehberi](docs/warehouse-ui.md) ·
+[Tarayıcı ve test doğrulaması](validation/warehouse-ui.md).
 
-| Guard | Default |
+## Doğrulama
+
+```bash
+apps/api/.venv/bin/python -m pytest tests apps/api/tests -q
+npm run test:web
+npm run build
+apps/api/.venv/bin/python scripts/export_contracts.py --check
+# Hepsi: npm run validate
+```
+
+Testler ürün korunumunu, robot sahipliğini, tam sipariş kapasite ayırmasını,
+birleşme takip mesafesini, kesinti/yeniden başlatmayı, aday izolasyonunu,
+tekrarlanabilirliği ve API/runner olay eşliğini kontrol eder.
+Eski motorun navigasyon, asansör, mağaza ve konveyör regresyonları korunur.
+
+## Simülasyon ve deneyler
+
+Çekirdek standart Python kütüphanesiyle çalışır; CLI için FastAPI veya 3D gerekmez.
+
+```bash
+# Tek koşu
+apps/api/.venv/bin/python -m apps.runner run --scenario multi_zone --policy fifo --seed 42
+
+# Küçük doğrulama: 2 dış tohum, 5 politika, sabit 6 aday değerlendirmesi
+apps/api/.venv/bin/python -m apps.runner batch --scenario balanced --policy all --seeds 2 --budget 6
+
+# Ana karşılaştırmayı başlat: 8 senaryo × 30 dış tohum × 5 politika
+apps/api/.venv/bin/python -m apps.runner batch --scenario all --policy all --seed 100 --seeds 30 --algorithm-seed 7 --budget 24
+
+# Eşleştirilmiş tohum farkları, açık siparişler ve bootstrap aralığı
+apps/api/.venv/bin/python experiments/analyze.py experiments/results/KOŞU_DİZİNİ/summary.csv
+```
+
+Politikalar: `fifo`, `order_aware`, `gwo_conveyor`, `local_search`, `gwo_integrated`.
+GWO bir sezgiseldir; optimum garantisi vermez. Bütün yöntemler aynı robot seçimi,
+kapasite kuralları ve rezervasyon çizelgeleyicisini kullanır.
+
+Her koşu `run.json`, `orders.json`, `events.jsonl`, `decisions.jsonl`,
+`samples.jsonl`, `metrics.json`, `final_snapshot.json` üretir. Konfigürasyon,
+çözülmüş sipariş/kesinti listesi, ayrı rastgelelik tohumları, git sürümü ve kaynak
+özeti kaydedilir. Sonuçlar `experiments/results/` altında git dışında tutulur.
+Web'deki **Kayıtları indir** aynı kayıtları ve kullanıcı komutlarını ZIP olarak verir.
+Tamamlanan/kapatılan/sıfırlanan web oturumları ayrıca `experiments/results/live/`
+altına arşivlenir. Devam eden oturumlar sunucu belleğindedir.
+
+## Kodun konumu
+
+| Konum | İşlev |
 |---|---|
-| Input limits | `TASK_BURST.count ≤ 30`, injections ≤ 10 min, What-if ≤ 8 injections / 10 min, Copilot question ≤ 500 chars, VLM frame ≤ 400 KB; task locations must exist, match the task type and never be a charger (`sim/rules.py`, mirrored in TS) |
-| Rate limit (per client IP, in-memory, GC'd) | mutations 20/min · Copilot & VLM 10/min · What-if 4/min · WebSocket messages 120/min → `429` / `RATE_LIMITED`. What-if runs one at a time — a second request gets `503` / `BUSY` immediately instead of queueing; multi-seed runs are capped at seeds × duration ≤ 9,000 ticks and report per-pair progress. Client IP is the last hop of `X-Forwarded-For` (`TWIN_TRUSTED_PROXIES`), so it cannot be spoofed |
-| Origin check | when `TWIN_CORS_ORIGINS` is set, WebSocket and POST must carry an allowed `Origin`. Production allows only `https://ware-twin.vercel.app`; Vercel previews are off unless you add a `TWIN_CORS_REGEX` pinned to your own scope slug (`TWIN_ALLOW_NO_ORIGIN=1` re-enables curl) |
-| Body size | REST 512 KB counted on the ASGI stream (chunked / forged `Content-Length` included), WebSocket message 64 KB (UTF-8 bytes) |
-| Health | `/api/health` returns `503` when the simulation task died or has not advanced for `TWIN_HEALTH_STALL_S` seconds, so Render restarts it |
+| `apps/web` | React/Three.js, dashboard, kamera/seçim, salt snapshot istemci durumu |
+| `apps/api/app/research` | Oturumlar, doğrulanmış komutlar, REST, WebSocket ve dışa aktarma |
+| `apps/runner` | Aynı çekirdekle tek/çoklu deney CLI'si |
+| `packages/warehouse_core` | Domain, simülasyon, fiziksel kaynaklar, koordinasyon, planlama, politikalar, optimizasyon, tahmin, kayıt |
+| `packages/warehouse_core/legacy` | Taşınmış eski navigasyon/mağaza motoru; FSM, lift, trafik, konveyör |
+| `packages/contracts` | V2 Python/TypeScript/JSON sözleşmeleri ve eski v1 sözleşmeleri |
+| `experiments` | Sekiz senaryo ve eşleştirilmiş sonuç analizi |
+| `tests` | Yeni çekirdek ve API entegrasyon testleri |
+| `docs`, `scripts` | Mimari, protokol, doğrulama, yerleşim ve sözleşme üretimi |
 
-Reads (`/api/state`, `/api/health`, …) are never limited. `TWIN_RATE_LIMIT=0` switches the limiter off for local development. The UI is built for desktop (best ≥ 1280 px, usable from 1024 px); narrower screens get a notice instead of an unreadable 0.25× layout, and the simulation is not started behind it. Audit history lives in SQLite on the instance and resets when the free-tier instance is replaced.
+Ayrıntılar: [mimari ve durum sahipliği](docs/architecture.md),
+[klasör/özellik rehberi](docs/folder-guide.md), [senaryo biçimi](docs/scenarios.md),
+[deney protokolü](docs/experiment-protocol.md),
+[geçiş haritası](docs/migration-map.md), [doğrulama kaydı](docs/validation.md).
 
-## 📚 Data & acknowledgements
+## Modelin kapsamı
 
-- The warehouse layout is **synthetic**, generated by `docs/layout/gen_layout.py`; no third-party map or open dataset is used.
-- Fonts: [Inter](https://rsms.me/inter/) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/) via Google Fonts (SIL OFL 1.1).
-- Built with [Three.js](https://threejs.org) · [React Three Fiber](https://docs.pmnd.rs/react-three-fiber) · [drei](https://github.com/pmndrs/drei) · [zustand](https://github.com/pmndrs/zustand) · [FastAPI](https://fastapi.tiangolo.com) · [Pydantic](https://docs.pydantic.dev) · [OpenAI Python SDK](https://github.com/openai/openai-python) — all MIT/BSD/Apache licensed.
-- The reference imagery used during design (NVIDIA Isaac Sim screenshots, AMR product photos) is not included in this repository.
+Araştırma modeli tek yönlü, sabit hızlı ortak bant, eşit uzunlukta taşıyıcılar ve
+robot başına ayrılmış servis koridorları kullanır. Genel robot yol çakışması,
+araştırma modelinde asansör planlama, stok yenileme ve sevkiyat sonrası dağıtım
+bu sürümün kapsamında değildir. Şarj, tamamlanan görev sayısına bağlı başlangıç
+modelidir; ayrıntılı batarya/enerji modeli değildir. Tahmin fiziksel süreler ve
+geçmiş ortalamasıdır; makine öğrenmesi henüz eklenmedi.
 
-## 📄 License
+Sabit adım süresi varsayılan 0,5 s'dir. İşlem süreleri yukarı yuvarlanır.
+Canlı `--time-limit-ms` sınırı bir aday değerlendirmesinin sonunda kontrol edilen
+yumuşak sınırdır; tekrarlanabilir deneylerde yalnızca sabit `--budget` kullanın.
+Açık siparişler ortalamadan ayrı sayılır ve aday değerlendirmesinde cezalandırılır.
 
-[MIT](LICENSE) © 2026 Wayne Chou
+Yerel araştırma kullanımı hedeflenir: oturumlar kullanıcı hesabına bağlı değildir,
+8 oturum sınırı vardır ve tek API worker kullanılır. Docker'ı kökten
+`docker build -f apps/api/Dockerfile .` ile oluşturun. Üretim barındırmasında kalıcı
+sonuç diski ve erişim denetimi ayrıca yapılandırılmalıdır.
+
+Özgün proje açıklaması [arşivde](docs/legacy-readme.md), lisans [MIT](LICENSE).

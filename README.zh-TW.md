@@ -1,3 +1,5 @@
+> Güncel kurulum, mimari ve deney komutları: [WareTwin README](README.md). Aşağıdaki metin önceki navigasyon sürümünün tarihsel rehberidir.
+
 <div align="center">
 
 <img src="docs/logo.svg" width="96" alt="WareTwin logo" />

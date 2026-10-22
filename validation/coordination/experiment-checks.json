@@ -1,0 +1,76 @@
+[
+  {
+    "summary": "experiments/results/validation/20261016T160346.212054Z/summary.csv",
+    "runs": 80,
+    "scenarios": [
+      "balanced",
+      "belt_stop",
+      "hot_zone",
+      "limited_buffer",
+      "multi_zone",
+      "packing_outage",
+      "preparation_uncertainty",
+      "robot_failure"
+    ],
+    "policies": [
+      "fifo",
+      "gwo_conveyor",
+      "gwo_integrated",
+      "local_search",
+      "order_aware"
+    ],
+    "scenario_seeds": [
+      42,
+      43
+    ],
+    "open_orders": 0,
+    "not_yet_arrived": 0
+  },
+  {
+    "summary": "experiments/results/final-validation/20261016T225822.072309Z/summary.csv",
+    "runs": 10,
+    "scenarios": [
+      "balanced"
+    ],
+    "policies": [
+      "fifo",
+      "gwo_conveyor",
+      "gwo_integrated",
+      "local_search",
+      "order_aware"
+    ],
+    "scenario_seeds": [
+      43,
+      44
+    ],
+    "open_orders": 0,
+    "not_yet_arrived": 0
+  },
+  {
+    "summary": "experiments/results/release-validation/20261016T230310.033628Z/summary.csv",
+    "runs": 80,
+    "scenarios": [
+      "balanced",
+      "belt_stop",
+      "hot_zone",
+      "limited_buffer",
+      "multi_zone",
+      "packing_outage",
+      "preparation_uncertainty",
+      "robot_failure"
+    ],
+    "policies": [
+      "fifo",
+      "gwo_conveyor",
+      "gwo_integrated",
+      "local_search",
+      "order_aware"
+    ],
+    "scenario_seeds": [
+      42,
+      43
+    ],
+    "open_orders": 0,
+    "not_yet_arrived": 0
+  }
+]

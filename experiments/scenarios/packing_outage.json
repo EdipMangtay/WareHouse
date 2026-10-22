@@ -1,0 +1,16 @@
+{
+  "name": "packing_outage",
+  "config": {
+    "packing_stations": 1
+  },
+  "incidents": [
+    {
+      "kind": "PACKING_FAILURE",
+      "at_s": 40,
+      "target": "P1",
+      "duration_s": 40,
+      "jitter_s": 5
+    }
+  ],
+  "horizon_s": 900
+}

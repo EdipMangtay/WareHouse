@@ -1,0 +1,40 @@
+{
+  "name": "limited_buffer",
+  "config": {
+    "consolidation_slots": 4,
+    "zones": [
+      {
+        "id": "Z1",
+        "entry_m": 0,
+        "robots": 2,
+        "buffer_slots": 1
+      },
+      {
+        "id": "Z2",
+        "entry_m": 12,
+        "robots": 2,
+        "buffer_slots": 1
+      },
+      {
+        "id": "Z3",
+        "entry_m": 24,
+        "robots": 2,
+        "buffer_slots": 1
+      },
+      {
+        "id": "Z4",
+        "entry_m": 36,
+        "robots": 2,
+        "buffer_slots": 1
+      }
+    ]
+  },
+  "demand": {
+    "count": 10,
+    "interval_s": 2,
+    "min_items": 4,
+    "max_items": 4,
+    "distinct_zones": true
+  },
+  "horizon_s": 900
+}

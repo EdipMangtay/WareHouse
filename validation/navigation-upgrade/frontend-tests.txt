@@ -1,0 +1,13 @@
+
+> warehouse-digital-twin-frontend@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 /Users/mangtay/Documents/Codex/2026-10-05/projemiz-bir-m-terinin-sipari-verdi/outputs/WareTwin/frontend
+
+
+ Test Files  8 passed (8)
+      Tests  68 passed (68)
+   Start at  10:14:29
+   Duration  38.49s (transform 4.57s, setup 0ms, import 7.91s, tests 39.67s, environment 1ms)
+

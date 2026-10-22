@@ -1,0 +1,13 @@
+{
+  "name": "robot_failure",
+  "incidents": [
+    {
+      "kind": "ROBOT_FAILURE",
+      "at_s": 5,
+      "target": "Z1-R1",
+      "duration_s": 35,
+      "jitter_s": 2
+    }
+  ],
+  "horizon_s": 900
+}

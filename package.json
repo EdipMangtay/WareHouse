@@ -1,0 +1,12 @@
+{
+  "name": "waretwin",
+  "private": true,
+  "version": "0.2.0",
+  "scripts": {
+    "dev": "bash start.sh",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build",
+    "test:web": "npm --prefix apps/web test",
+    "validate": "bash scripts/validate.sh"
+  }
+}

@@ -30,3 +30,9 @@ docs/layout/layout_preview.png
 .idea/
 .DS_Store
 Thumbs.db
+
+# Experiment artifacts are reproducible data, not source files.
+experiments/results/
+experiments/tmp/
+*.egg-info/
+coverage/

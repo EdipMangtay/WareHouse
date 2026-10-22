@@ -6010,6 +6010,66 @@
       ]
     },
     {
+      "id": "CHG-09",
+      "zone": "G",
+      "position": [
+        38.5,
+        0,
+        116.5
+      ],
+      "heading": 0,
+      "power_kw": 22,
+      "access_point": [
+        38.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-10",
+      "zone": "G",
+      "position": [
+        42.5,
+        0,
+        116.5
+      ],
+      "heading": 0,
+      "power_kw": 22,
+      "access_point": [
+        42.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-11",
+      "zone": "G",
+      "position": [
+        46.5,
+        0,
+        116.5
+      ],
+      "heading": 0,
+      "power_kw": 22,
+      "access_point": [
+        46.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-12",
+      "zone": "G",
+      "position": [
+        50.5,
+        0,
+        116.5
+      ],
+      "heading": 0,
+      "power_kw": 22,
+      "access_point": [
+        50.5,
+        113.5
+      ]
+    },
+    {
       "id": "CHG-ZA",
       "zone": "ZONE_A",
       "position": [
@@ -6080,7 +6140,7 @@
         176,
         113
       ],
-      "slots": 32
+      "slots": 48
     }
   ],
   "restricted_areas": [],
@@ -10297,6 +10357,54 @@
       ]
     },
     {
+      "id": "CHG-09",
+      "kind": "CHARGING",
+      "zone": "G",
+      "floor": 1,
+      "rack_id": null,
+      "level_range": null,
+      "access_point": [
+        38.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-10",
+      "kind": "CHARGING",
+      "zone": "G",
+      "floor": 1,
+      "rack_id": null,
+      "level_range": null,
+      "access_point": [
+        42.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-11",
+      "kind": "CHARGING",
+      "zone": "G",
+      "floor": 1,
+      "rack_id": null,
+      "level_range": null,
+      "access_point": [
+        46.5,
+        113.5
+      ]
+    },
+    {
+      "id": "CHG-12",
+      "kind": "CHARGING",
+      "zone": "G",
+      "floor": 1,
+      "rack_id": null,
+      "level_range": null,
+      "access_point": [
+        50.5,
+        113.5
+      ]
+    },
+    {
       "id": "IND-A",
       "kind": "INDUCTION",
       "zone": "ZONE_A",
@@ -10776,48 +10884,240 @@
       {
         "id": "R29",
         "position": [
-          90.5,
+          27.5,
           0,
-          110.5
+          55.5
         ],
         "heading": -1.5707963267948966,
         "battery": 98,
         "floor": 1,
-        "home_zone": "SERVICE"
+        "home_zone": "ZONE_A"
       },
       {
         "id": "R30",
         "position": [
-          93.5,
+          121.5,
           0,
-          110.5
+          55.5
         ],
         "heading": -1.5707963267948966,
         "battery": 99,
         "floor": 1,
-        "home_zone": "SERVICE"
+        "home_zone": "ZONE_B"
       },
       {
         "id": "R31",
         "position": [
-          96.5,
+          27.5,
           0,
-          110.5
+          58.5
         ],
         "heading": -1.5707963267948966,
         "battery": 90,
         "floor": 1,
-        "home_zone": "SERVICE"
+        "home_zone": "ZONE_C"
       },
       {
         "id": "R32",
         "position": [
-          99.5,
+          121.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 91,
+        "floor": 1,
+        "home_zone": "ZONE_D"
+      },
+      {
+        "id": "R33",
+        "position": [
+          30.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 92,
+        "floor": 1,
+        "home_zone": "ZONE_A"
+      },
+      {
+        "id": "R34",
+        "position": [
+          124.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 93,
+        "floor": 1,
+        "home_zone": "ZONE_B"
+      },
+      {
+        "id": "R35",
+        "position": [
+          30.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 94,
+        "floor": 1,
+        "home_zone": "ZONE_C"
+      },
+      {
+        "id": "R36",
+        "position": [
+          124.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 95,
+        "floor": 1,
+        "home_zone": "ZONE_D"
+      },
+      {
+        "id": "R37",
+        "position": [
+          33.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 96,
+        "floor": 1,
+        "home_zone": "ZONE_A"
+      },
+      {
+        "id": "R38",
+        "position": [
+          127.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 97,
+        "floor": 1,
+        "home_zone": "ZONE_B"
+      },
+      {
+        "id": "R39",
+        "position": [
+          33.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 98,
+        "floor": 1,
+        "home_zone": "ZONE_C"
+      },
+      {
+        "id": "R40",
+        "position": [
+          127.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 99,
+        "floor": 1,
+        "home_zone": "ZONE_D"
+      },
+      {
+        "id": "R41",
+        "position": [
+          36.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 90,
+        "floor": 1,
+        "home_zone": "ZONE_A"
+      },
+      {
+        "id": "R42",
+        "position": [
+          130.5,
+          0,
+          55.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 91,
+        "floor": 1,
+        "home_zone": "ZONE_B"
+      },
+      {
+        "id": "R43",
+        "position": [
+          36.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 92,
+        "floor": 1,
+        "home_zone": "ZONE_C"
+      },
+      {
+        "id": "R44",
+        "position": [
+          130.5,
+          0,
+          58.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 93,
+        "floor": 1,
+        "home_zone": "ZONE_D"
+      },
+      {
+        "id": "R45",
+        "position": [
+          138.5,
           0,
           110.5
         ],
         "heading": -1.5707963267948966,
-        "battery": 91,
+        "battery": 94,
+        "floor": 1,
+        "home_zone": "SERVICE"
+      },
+      {
+        "id": "R46",
+        "position": [
+          141.5,
+          0,
+          110.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 95,
+        "floor": 1,
+        "home_zone": "SERVICE"
+      },
+      {
+        "id": "R47",
+        "position": [
+          144.5,
+          0,
+          110.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 96,
+        "floor": 1,
+        "home_zone": "SERVICE"
+      },
+      {
+        "id": "R48",
+        "position": [
+          147.5,
+          0,
+          110.5
+        ],
+        "heading": -1.5707963267948966,
+        "battery": 97,
         "floor": 1,
         "home_zone": "SERVICE"
       }
@@ -89883,7 +90183,7 @@
       "bays_per_level": 4,
       "packing_stations": 5,
       "sorting_stations": 5,
-      "robot_count": 32,
+      "robot_count": 48,
       "robot_radius": 0.65,
       "clearance_padding": 1,
       "conveyor_speed": 1.2,
@@ -89897,18 +90197,18 @@
     "counts": {
       "racks": 247,
       "storage_slots": 9880,
-      "robots": 32,
+      "robots": 48,
       "packing_stations": 5,
       "sorting_stations": 5,
       "zones": 4,
       "floor_area_m2": 21600
     },
     "validation": {
-      "navigation_sha256": "62c1c4d33c1fd9ab2287bab58681b8edd98e6978f7db5599f75236d0e3206ff0",
+      "navigation_sha256": "252e16e77d6aa8b2bbecfd2ec26c6c8667b774676cc32ca4779878c85dfac4b1",
       "connected": true,
-      "reachable_cells": 13426,
-      "validated_access_points": 311,
-      "physical_solids": 299,
+      "reachable_cells": 13390,
+      "validated_access_points": 331,
+      "physical_solids": 303,
       "minimum_rack_corridor_m": 4,
       "robot_radius_m": 0.65
     }

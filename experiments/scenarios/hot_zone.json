@@ -1,0 +1,14 @@
+{
+  "name": "hot_zone",
+  "demand": {
+    "count": 12,
+    "interval_s": 3,
+    "zone_weights": [
+      9,
+      1,
+      1,
+      1
+    ]
+  },
+  "horizon_s": 900
+}

@@ -1,0 +1,575 @@
+{
+  "command": {
+    "$defs": {
+      "AddOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "ADD_ORDER",
+            "title": "Action",
+            "type": "string"
+          },
+          "order_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "zones": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Zones",
+            "type": "array"
+          },
+          "due_after_s": {
+            "default": 120,
+            "exclusiveMinimum": 0,
+            "maximum": 86400,
+            "title": "Due After S",
+            "type": "number"
+          }
+        },
+        "required": [
+          "command_id",
+          "action",
+          "order_id",
+          "zones"
+        ],
+        "title": "AddOrder",
+        "type": "object"
+      },
+      "Inject": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "INJECT",
+            "title": "Action",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "ROBOT_FAILURE",
+              "BELT_STOP",
+              "PACKING_FAILURE"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target"
+          },
+          "duration_s": {
+            "default": 20,
+            "exclusiveMinimum": 0,
+            "maximum": 3600,
+            "title": "Duration S",
+            "type": "number"
+          }
+        },
+        "required": [
+          "command_id",
+          "action",
+          "kind"
+        ],
+        "title": "Inject",
+        "type": "object"
+      },
+      "Pause": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "PAUSE",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "action"
+        ],
+        "title": "Pause",
+        "type": "object"
+      },
+      "Play": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "PLAY",
+            "title": "Action",
+            "type": "string"
+          },
+          "speed": {
+            "default": 1,
+            "maximum": 20,
+            "minimum": 0.25,
+            "title": "Speed",
+            "type": "number"
+          }
+        },
+        "required": [
+          "command_id",
+          "action"
+        ],
+        "title": "Play",
+        "type": "object"
+      },
+      "Reset": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "RESET",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "action"
+        ],
+        "title": "Reset",
+        "type": "object"
+      },
+      "SetPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "SET_POLICY",
+            "title": "Action",
+            "type": "string"
+          },
+          "policy": {
+            "enum": [
+              "fifo",
+              "order_aware",
+              "gwo_conveyor",
+              "local_search",
+              "gwo_integrated"
+            ],
+            "title": "Policy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "action",
+          "policy"
+        ],
+        "title": "SetPolicy",
+        "type": "object"
+      },
+      "Step": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "action": {
+            "const": "STEP",
+            "title": "Action",
+            "type": "string"
+          },
+          "ticks": {
+            "default": 1,
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Ticks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "command_id",
+          "action"
+        ],
+        "title": "Step",
+        "type": "object"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "ADD_ORDER": "#/$defs/AddOrder",
+        "INJECT": "#/$defs/Inject",
+        "PAUSE": "#/$defs/Pause",
+        "PLAY": "#/$defs/Play",
+        "RESET": "#/$defs/Reset",
+        "SET_POLICY": "#/$defs/SetPolicy",
+        "STEP": "#/$defs/Step"
+      },
+      "propertyName": "action"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/Play"
+      },
+      {
+        "$ref": "#/$defs/Pause"
+      },
+      {
+        "$ref": "#/$defs/Step"
+      },
+      {
+        "$ref": "#/$defs/Reset"
+      },
+      {
+        "$ref": "#/$defs/SetPolicy"
+      },
+      {
+        "$ref": "#/$defs/Inject"
+      },
+      {
+        "$ref": "#/$defs/AddOrder"
+      }
+    ]
+  },
+  "create": {
+    "additionalProperties": false,
+    "properties": {
+      "scenario": {
+        "default": "balanced",
+        "pattern": "^[a-z_]+$",
+        "title": "Scenario",
+        "type": "string"
+      },
+      "scenario_seed": {
+        "default": 42,
+        "title": "Scenario Seed",
+        "type": "integer"
+      },
+      "algorithm_seed": {
+        "default": 7,
+        "title": "Algorithm Seed",
+        "type": "integer"
+      },
+      "policy": {
+        "default": "fifo",
+        "enum": [
+          "fifo",
+          "order_aware",
+          "gwo_conveyor",
+          "local_search",
+          "gwo_integrated"
+        ],
+        "title": "Policy",
+        "type": "string"
+      },
+      "search_budget": {
+        "default": 12,
+        "maximum": 128,
+        "minimum": 1,
+        "title": "Search Budget",
+        "type": "integer"
+      },
+      "time_limit_ms": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "maximum": 2000,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Time Limit Ms"
+      }
+    },
+    "title": "CreateSession",
+    "type": "object"
+  },
+  "frame": {
+    "$defs": {
+      "Snapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "2.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "tick": {
+            "title": "Tick",
+            "type": "integer"
+          },
+          "time_s": {
+            "title": "Time S",
+            "type": "number"
+          },
+          "tick_s": {
+            "title": "Tick S",
+            "type": "number"
+          },
+          "policy": {
+            "enum": [
+              "fifo",
+              "order_aware",
+              "gwo_conveyor",
+              "local_search",
+              "gwo_integrated"
+            ],
+            "title": "Policy",
+            "type": "string"
+          },
+          "scenario": {
+            "title": "Scenario",
+            "type": "string"
+          },
+          "scenario_seed": {
+            "title": "Scenario Seed",
+            "type": "integer"
+          },
+          "algorithm_seed": {
+            "title": "Algorithm Seed",
+            "type": "integer"
+          },
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "orders": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "tasks": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Tasks",
+            "type": "array"
+          },
+          "robots": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Robots",
+            "type": "array"
+          },
+          "carriers": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Carriers",
+            "type": "array"
+          },
+          "packages": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Packages",
+            "type": "array"
+          },
+          "packing": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Packing",
+            "type": "array"
+          },
+          "zones": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Zones",
+            "type": "array"
+          },
+          "belt": {
+            "additionalProperties": true,
+            "title": "Belt",
+            "type": "object"
+          },
+          "consolidation": {
+            "additionalProperties": true,
+            "title": "Consolidation",
+            "type": "object"
+          },
+          "reservations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Reservations",
+            "type": "array"
+          },
+          "events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "decisions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "finished": {
+            "title": "Finished",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "tick",
+          "time_s",
+          "tick_s",
+          "policy",
+          "scenario",
+          "scenario_seed",
+          "algorithm_seed",
+          "config",
+          "orders",
+          "items",
+          "tasks",
+          "robots",
+          "carriers",
+          "packages",
+          "packing",
+          "zones",
+          "belt",
+          "consolidation",
+          "reservations",
+          "events",
+          "decisions",
+          "metrics",
+          "finished"
+        ],
+        "title": "Snapshot",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "type": {
+        "const": "SNAPSHOT",
+        "default": "SNAPSHOT",
+        "title": "Type",
+        "type": "string"
+      },
+      "session_id": {
+        "title": "Session Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "generation": {
+        "title": "Generation",
+        "type": "integer"
+      },
+      "paused": {
+        "title": "Paused",
+        "type": "boolean"
+      },
+      "speed": {
+        "title": "Speed",
+        "type": "number"
+      },
+      "error": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Error"
+      },
+      "state": {
+        "$ref": "#/$defs/Snapshot"
+      }
+    },
+    "required": [
+      "session_id",
+      "revision",
+      "generation",
+      "paused",
+      "speed",
+      "error",
+      "state"
+    ],
+    "title": "SessionFrame",
+    "type": "object"
+  }
+}

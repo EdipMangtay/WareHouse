@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-17",
+  "path": "/#research",
+  "observations": [
+    {
+      "check": "authoritative_single_step",
+      "tick": 1,
+      "time_s": 0.5
+    },
+    {
+      "check": "belt_stop",
+      "before_time_s": 20.5,
+      "after_time_s": 30.5,
+      "stopped": true,
+      "carrier_positions_m": [
+        {
+          "id": "C:O0001:I1",
+          "before": 20,
+          "after": 20
+        },
+        {
+          "id": "C:O0002:I2",
+          "before": 4,
+          "after": 4
+        },
+        {
+          "id": "C:O0002:I1",
+          "before": 28,
+          "after": 28
+        }
+      ]
+    },
+    {
+      "check": "belt_restart_and_pause",
+      "restored": true,
+      "speed": 20,
+      "advanced": true,
+      "paused": true,
+      "frozen_tick": 110,
+      "unchanged_after_500_wall_ms": true
+    },
+    {
+      "check": "gwo_decision_inspector",
+      "policy": "gwo_integrated",
+      "time_s": 8,
+      "evaluations": 12,
+      "cohort": [
+        "O0001",
+        "O0002",
+        "O0003"
+      ],
+      "candidate_table_visible": true
+    },
+    {
+      "check": "responsive_layout",
+      "viewport_width": 1440,
+      "document_width": 1440
+    },
+    {
+      "check": "responsive_layout",
+      "viewport_width": 390,
+      "document_width": 390,
+      "canvas_width": 360,
+      "canvas_height": 328,
+      "connected": true
+    }
+  ],
+  "notes": [
+    "Browser evidence collected through rendered controls and session snapshots; no alternate completion logic.",
+    "A development hot-reload WebSocket cleanup warning was observed; connection cleanup was adjusted."
+  ]
+}

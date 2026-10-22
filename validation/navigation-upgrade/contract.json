@@ -1,0 +1,25 @@
+{
+  "surface": "WareTwin warehouse 3D operations viewport",
+  "job": "Inspect the facility clearly and move independently through its aisles",
+  "direction": "Quiet industrial control console; warm scene materials, mint movement controls, amber equipment",
+  "primaryAction": "İçeride gez",
+  "hierarchy": ["3D warehouse", "View and walking modes", "Movement feedback and minimap", "Camera tuning and help"],
+  "targetViewports": ["1440x900", "390x844"],
+  "observations": [
+    "Existing orbit controls cannot move a user independently along an aisle.",
+    "Existing full-height walls and overhead structure obscure the overview.",
+    "Existing camera settings are limited to quality and fixed viewpoints."
+  ],
+  "constraints": [
+    "Walking is independent of robot movement and works in local demo mode.",
+    "WASD and arrow keys only control the camera while the scene owns focus.",
+    "Camera movement cannot cross blocked navigation cells, including during slow frames.",
+    "Pointer lock is optional; dragging and touch controls remain available.",
+    "Escape releases mouse capture without collapsing the viewport.",
+    "Mode changes, window blur and hidden tabs clear held movement input.",
+    "Minimap and saved destinations resolve to valid ground-floor aisle positions.",
+    "Reduced-motion mode has no automatic camera rotation or movement easing.",
+    "All controls have labels, visible keyboard focus and touch-friendly targets.",
+    "No additional runtime dependencies or changes to simulation geometry."
+  ]
+}

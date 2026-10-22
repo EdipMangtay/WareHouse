@@ -1,0 +1,12 @@
+{
+  "name": "belt_stop",
+  "incidents": [
+    {
+      "kind": "BELT_STOP",
+      "at_s": 24,
+      "duration_s": 25,
+      "jitter_s": 3
+    }
+  ],
+  "horizon_s": 900
+}
