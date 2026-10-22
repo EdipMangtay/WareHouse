@@ -303,17 +303,21 @@ def test_lift_lobby_congestion_resolves():
         e.create_task("PICK", "HIGH", "SHELF-M05", "PACK-01"),
     ]
     still: dict[str, int] = {}; last: dict[str, tuple] = {}
+    last_stage: dict[str, str | None] = {}
     for _ in range(90000):
         e.step()
         for r in e.state["robots"].values():
-            if not r["lift_stage"] or r["lift_stage"] == "RIDING":
-                still[r["id"]] = 0; last[r["id"]] = (r["position"][0], r["position"][2]); continue
-            lp = last.get(r["id"], (0, 0))
-            moved = math.hypot(r["position"][0] - lp[0], r["position"][2] - lp[1]) > 0.02
-            still[r["id"]] = 0 if moved else still.get(r["id"], 0) + 1
-            last[r["id"]] = (r["position"][0], r["position"][2])
-            if r["lift_stage"] in ("ALIGHTING", "BOARDING"):
-                assert still[r["id"]] < 600, f"{r['id']} stuck in {r['lift_stage']}"
+            rid, stage = r["id"], r["lift_stage"]
+            position = (r["position"][0], r["position"][2])
+            moved = math.dist(position, last.get(rid, position)) > 0.02
+            # Queue waiting is valid; the 60-second limit applies only to a
+            # continuous stall within the current boarding/alighting stage.
+            if stage not in ("ALIGHTING", "BOARDING") or stage != last_stage.get(rid) or moved:
+                still[rid] = 0
+            else:
+                still[rid] += 1
+            last[rid], last_stage[rid] = position, stage
+            assert still[rid] < 600, f"{rid} stuck in {stage}"
         if all(t["status"] in ("COMPLETED", "TRANSFERRED", "FAILED") for t in ts):
             break
     assert all(t["status"] == "COMPLETED" for t in ts)
