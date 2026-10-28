@@ -2,9 +2,13 @@ name: CI
 on:
   push: { branches: [main] }
   pull_request:
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -18,6 +22,7 @@ jobs:
       - run: python -m apps.runner batch --scenario balanced --policy all --seeds 2 --budget 4
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults: { run: { working-directory: apps/web } }
     steps:
       - uses: actions/checkout@v5
