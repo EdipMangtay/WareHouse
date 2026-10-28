@@ -1,102 +1,140 @@
-> Güncel kurulum, mimari ve deney komutları: [WareTwin README](README.md). Aşağıdaki metin önceki navigasyon sürümünün tarihsel rehberidir.
+# WareTwin — depo koordinasyon ve optimizasyon laboratuvarı
 
-# WareTwin — E-ticaret ve depo dijital ikizi
+Aynı siparişin farklı bölgelerdeki ürünlerinin hazırlanmasını, ortak konveyöre
+katılmasını, birleştirilmesini ve paketlenmesini birlikte araştıran çalışan sistem.
+Operasyonun yetkili kaynağı Python çekirdeğidir. Web ve arayüzsüz deney çalıştırıcısı
+aynı `Simulation.step()` olay modelini kullanır.
 
-Bu geliştirme kopyası, sağlanan WareTwin 3D depo simülatörünü e-ticaret ve operasyon yönetimiyle birleştirir. Masaüstündeki orijinal kaynak korunmuştur. Şehir ve drone simülasyonu bu sürümün kapsamı dışındadır.
+Mevcut mağaza, büyük depo, asansörler, kamera/yürüyüş kontrolleri ve robot görselleri
+korundu. Bunlar `#warehouse` / `#shop` üzerinden erişilen navigasyon/mağaza modudur.
+Yeni `#research` ekranı deneyler için ayrılmış bölge koridorlarını ve ortak bant
+modelini gösterir. Bu iki modelin ölçümleri karıştırılmaz.
 
-## Çalıştırma
+## Kurulum ve başlatma
 
-Bağımlılıklar bu çalışma kopyasında kuruludur. macOS/Linux üzerinde:
-
-```bash
-./start.sh large
-```
-
-- Mağaza: http://127.0.0.1:5173/#shop
-- Sipariş takibi: http://127.0.0.1:5173/#track
-- Yönetim: http://127.0.0.1:5173/#admin
-- 3D depo: http://127.0.0.1:5173/#warehouse
-- API dokümantasyonu: http://127.0.0.1:8000/docs
-
-Depo boyutu için `./start.sh small|medium|large|mega` seçeneklerinden birini kullanın (tek isim seçin). Varsayılan Large, eski iki katlı depo `./start.sh legacy` ile açılır. [Phase 1 raporu](PHASE1_WAREHOUSE.md) boyutları, mimariyi, testleri ve ölçülen performansı açıklar.
-
-Sunucuları durdurmak için Ctrl+C. Betik yalnızca yerel makineden bağlantı kabul eder. Mevcut bir servis 5173 veya 8000 portunu kullanıyorsa önce onu durdurun.
-
-Temiz kurulum için Node.js 20+ ve Python 3.11+ kullanın (bu sürüm Python 3.13 ile test edildi):
+Python 3.11+ ve Node 20+ kullanın. Komutlar proje kökünden çalıştırılır.
 
 ```bash
-cd backend
-python3.13 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.lock
-cd ../frontend
-npm ci
-cd ..
-./start.sh
+python3 -m venv apps/api/.venv
+apps/api/.venv/bin/python -m pip install -r apps/api/requirements-dev.lock
+npm --prefix apps/web ci
+
+# Mağaza, mevcut büyük depo, araştırma API'si ve web birlikte
+bash start.sh large
+# http://127.0.0.1:5173/#research
+# http://127.0.0.1:5173/#warehouse
+# http://127.0.0.1:8000/docs
 ```
 
-Windows başlatma betiği henüz uyarlanmadı. Terminalden frontend/backend ayrı çalıştırılabilir; kaynak proje talimatları README.md içindedir.
+Bağımlılıklar zaten kuruluysa `npm run dev` de aynı başlatıcıyı çalıştırır.
+`backend → apps/api`, `frontend → apps/web` eski yollar için uyumluluk bağlantılarıdır.
+Windows'ta doğrudan `apps` yollarını ve `dev.ps1` dosyasını kullanın.
 
-## Sipariş nasıl ilerler?
-
-1. Katalog, fiyat ve stok backend'den okunur. Sepet tarayıcıda korunur.
-2. Checkout, fiyatı sunucuda hesaplar; stok rezervasyonu ve sipariş kaydı tek SQLite işlemiyle yapılır. Aynı işlem anahtarının tekrar gönderilmesi ikinci sipariş veya stok kesintisi oluşturmaz.
-3. Sipariş satırları depodaki gerçek raf erişim noktalarından paketleme istasyonuna `PICK` görevleri üretir. Mevcut filo yöneticisi robot atar; ürünler aynı 3D depoda taşınır.
-4. Toplama tamamlanınca sınırlı kapasiteli paketleme kuyruğuna girer. Paketleme zamanı simülasyon saatine bağlıdır.
-5. `TRANSPORT` görevleri paketleri çıkış yükleme alanına taşır. Ancak bu görevler tamamlanınca sipariş `ready` / **Sevke hazır** olur.
-6. Takip ekranı durumu, olay geçmişini ve görevli robotları üç saniyede bir günceller. Yönetim paneli iki saniyede bir yenilenir. Depo görselleştirmesi mevcut WebSocket FULL/PATCH akışını kullanır.
-
-Standart, öncelikli ve depodan teslim tercihleri vardır. Demo ücretleri sırasıyla 49,90 TL, 99,90 TL ve 0 TL'dir; gerçek ödeme alınmaz. Öncelikli siparişler depo görevinde yüksek öncelik alır. Araç önerisi ağırlık/adet eşiklerinden üretilen bir sevk planıdır; adres veya hacme dayalı gerçek araç rotalama değildir.
-
-Robot arızasında devredilen görevlerin miktarı korunur. Backend yeniden başlatılır veya simülasyon sıfırlanırsa tamamlanmamış siparişler stok ikinci kez azaltılmadan yeniden kuyruğa girer; takip geçmişine kurtarma olayı eklenir. Tamamlanmış siparişler ve stok SQLite'da saklanır. Fiziksel bir deponun kesintisiz kurtarma garantisi modellenmez.
-
-## Yönetim ve deneyler
-
-- Aktif/tamamlanmış siparişler, hazırlık süresi, robot kullanımı, paketleme doluluğu, kuyruk ve performans ölçümleri.
-- 5 / 100 / 500 / 1000 sipariş/dakika hızında, 10–300 saniyelik sınırlı stres senaryoları. Mevcut deponun arka plan demo görevleri de çalışmaya devam eder; sipariş metrikleri ve tüm filo görev metrikleri bu yüzden aynı şey değildir. Test siparişleri ayrı `source=stress` etiketi taşır; müşteri stoklarını tüketmez, gerçek depo görevleri oluşturur.
-- Panelin stres testi **aynı backend sürecinde sipariş üretir**. Hedef hız, başarıyla oluşturulan gerçek hız ve hata sayısı farklı kavramlardır. CPU süreç CPU'sudur; RAM göstergesinin anlamı API notunda yer alır. API süresi sunucu işlem süresidir; ağ gecikmesini içermez.
-- Gerçek HTTP trafiği için ayrı `scripts/http_load.py` vardır. Örneğin:
+Araştırma API'sini mağaza/veritabanı olmadan ayrı çalıştırmak için iki terminal:
 
 ```bash
-backend/.venv/bin/python scripts/http_load.py --rate 100 --seconds 30 --output validation/http-read.json
-backend/.venv/bin/python scripts/http_load.py --mode checkout --rate 100 --seconds 30 --output validation/http-checkout.json
+apps/api/.venv/bin/python -m uvicorn apps.api.research:app --host 127.0.0.1 --port 8000
+npm run dev:web
 ```
 
-Checkout modu gerçek demo stoklarını rezerve eder ve sipariş geçmişinde test kayıtları bırakır. 429 hız/kuyruk sınırı, 409 stok veya işlem çakışması sonuçları da raporlanır; bunlar başarı gibi sayılmaz. Varsayılan koruma yazma isteklerini sınırlar. Yük deneyi için yalnızca yerel test ortamında backend'i `TWIN_RATE_LIMIT=0 ./start.sh` ile başlatabilirsiniz. Tek makinedeki bu ölçümler dağıtık üretim kapasitesini kanıtlamaz.
+`#research` ekranında senaryo, politika ve iki tohumu seçip **Deneyi oluştur**
+düğmesine basın. Oturum başlangıçta duraklatılır. Devam, duraklat, tek adım,
+10 simülasyon saniyesi, sıfırlama, hız ve kesinti komutları sunucuya gönderilir.
+Bağlantı koparsa son doğrulanmış durum gösterilir; tarayıcı bağımsız motor başlatmaz.
 
-## Rota ve kamera
+## Mevcut büyük depo arayüzü
 
-Yönetim panelindeki rota karşılaştırması, aynı anlık depo ızgarasında A*, Dijkstra ve kuyruk tabanlı Bellman-Ford uygular. Dinamik engeller, yaya alanı maliyeti ve trafik yoğunluğu üç algoritmaya eşit uygulanır. Maliyet, mesafe, süre ve incelenen düğüm sayısı döner. Kapalı hedef veya erişilemeyen yol açıkça raporlanır; iş bütçesi aşılırsa sonuç optimalmiş gibi sunulmaz. Deney salt okunurdur; çalışan robot filosunun rotacısı mevcut A* motorudur. Katlar arası algoritma karşılaştırması henüz yoktur.
+`http://127.0.0.1:5173/#warehouse` mevcut raf, robot ve dış bant yerleşimini açar.
+Daraltılabilir operasyon listesi, seçime bağlı ayrıntılar, sipariş/bileşen takibi,
+konveyör ve paketleme durumları, kamera/katman kontrolleri ile filtreli olay ve
+karar kayıtları bu ekrandadır. 3D sahne ve listeler aynı seçimi kullanır;
+veriler mevcut motor ve commerce servisinden gelir. Bağlantı kesildiğinde eski
+veri işaretlenir ve komutlar kapanır.
 
-3D görünümünde önce bir robot seçin; kamera menüsünden **Birinci şahıs** veya **Üçüncü şahıs** seçin. Serbest kameraya geçmek için kamera menüsünü veya sıfırlama düğmesini kullanın. Asansör ve kat yüksekliği kamera takibine yansır. Takip kamerası duvar, raf, kolon ve istasyon sınırlarına göre yaklaşma mesafesini kısaltır. Ekran ilk açılışta tesisin tamamını gösterir; **Tam ekran** düğmesi cihaz tam ekranını, **Operasyon paneli** düğmesi kontrol panellerini açar. Cihaz tam ekranını desteklemeyen tarayıcıda sahne pencereyi kaplar.
-
-## Phase 2: etkileşimli 3D deneyim
-
-Kamera menüsünde sinematik, taktik üst, izometrik, serbest, robot takip ve birinci şahıs modları bulunur. Arama alanına `R08`, `RACK-A001`, `SHELF-A01` veya `PACK-01` girin; sonucu seçerek odaklanın. Raf, istasyon, bölge ve robotlara doğrudan tıklayarak bilgi panelini açabilirsiniz. **Katmanlar** menüsü rotaları, durumları, koridorları, bölgeleri, istasyonları, engel sınırlarını, yön oklarını ve metre ızgarasını kontrol eder.
-
-Dosya değişiklikleri, test sonuçları ve son görsel doğrulama sınırı [Phase 2 raporunda](PHASE2_EXPERIENCE.md) kayıtlıdır.
-
-## Kaynak haritası
-
-- `backend/app/commerce.py`: katalog, stok, sipariş, paketleme ve yükleme orkestrasyonu, stres ve metrikler.
-- `backend/app/main.py`: FastAPI uçları, simülasyon döngüsüne bağlantı ve middleware ölçümleri.
-- `backend/app/routing.py`: aynı depo görüntüsü üzerinde algoritma karşılaştırması.
-- `frontend/src/commerce/`: mağaza, sepet, takip, yönetim arayüzleri.
-- `frontend/src/WarehouseApp.tsx`: korunmuş depo ekranı.
-- `frontend/src/components/scene/Scene3D.tsx`: robot kamerası.
-- `scripts/http_load.py`: bağımsız HTTP yük üreticisi.
-- `NEXT_STEPS.md`: sonraki görüşme için kapsam ve devam noktası.
+[Kullanım, veri kaynakları ve dosya rehberi](docs/warehouse-ui.md) ·
+[Tarayıcı ve test doğrulaması](validation/warehouse-ui.md).
 
 ## Doğrulama
 
 ```bash
-cd backend && .venv/bin/python -m pytest -q
-cd ../frontend && npm test && npm run build
+apps/api/.venv/bin/python -m pytest tests apps/api/tests -q
+npm run test:web
+npm run build
+apps/api/.venv/bin/python scripts/export_contracts.py --check
+# Hepsi: npm run validate
 ```
 
-Yeni backend testleri stok atomikliği, işlem tekrarları, gerçek robotlarla uçtan uca hazırlık/yükleme, arıza sonrası miktar korunması, kalıcılık, paketleme kuyruğu ve algoritma tutarlılığını doğrular. Önceki depo testleri korunmuştur. Kontrol sonuçları `validation/` altında tutulur.
+Testler ürün korunumunu, robot sahipliğini, tam sipariş kapasite ayırmasını,
+birleşme takip mesafesini, kesinti/yeniden başlatmayı, aday izolasyonunu,
+tekrarlanabilirliği ve API/runner olay eşliğini kontrol eder.
+Eski motorun navigasyon, asansör, mağaza ve konveyör regresyonları korunur.
 
-Bu sürüm yerel, tek süreçli geliştirme prototipidir. Kullanıcı girişi/yetkilendirme, ödeme sağlayıcısı, dağıtık iş kuyruğu, üretim dağıtımı ve gerçek kargo teslimi henüz yoktur. “Sevke hazır” müşteriye teslim edildi anlamına gelmez. Orijinal deponun bazı kontrolleri İngilizcedir; eklenen mağaza ve operasyon ekranları Türkçedir.
+## Simülasyon ve deneyler
 
-## Phase 3 — ortak navigasyon
+Çekirdek standart Python kütüphanesiyle çalışır; CLI için FastAPI veya 3D gerekmez.
 
-Depo ekranındaki **Navigasyon** düğmesi graf, erişim/kavşak noktaları, canlı hücre/kenar kapatmaları ve erişilebilirlik tanılamasını açar. `./start.sh large` ortak navigasyon manifestini yeniden üretir ve iki servisi aynı yerleşimle başlatır. Tüm depo boyutlarını kontrol etmek için `backend/.venv/bin/python scripts/validate_navigation.py --preset all` çalıştırın. Yapılandırma, API ve doğrulama ayrıntıları [PHASE3_NAVIGATION.md](PHASE3_NAVIGATION.md) içindedir.
+```bash
+# Tek koşu
+apps/api/.venv/bin/python -m apps.runner run --scenario multi_zone --policy fifo --seed 42
+
+# Küçük doğrulama: 2 dış tohum, 5 politika, sabit 6 aday değerlendirmesi
+apps/api/.venv/bin/python -m apps.runner batch --scenario balanced --policy all --seeds 2 --budget 6
+
+# Ana karşılaştırmayı başlat: 8 senaryo × 30 dış tohum × 5 politika
+apps/api/.venv/bin/python -m apps.runner batch --scenario all --policy all --seed 100 --seeds 30 --algorithm-seed 7 --budget 24
+
+# Eşleştirilmiş tohum farkları, açık siparişler ve bootstrap aralığı
+apps/api/.venv/bin/python experiments/analyze.py experiments/results/KOŞU_DİZİNİ/summary.csv
+```
+
+Politikalar: `fifo`, `order_aware`, `gwo_conveyor`, `local_search`, `gwo_integrated`.
+GWO bir sezgiseldir; optimum garantisi vermez. Bütün yöntemler aynı robot seçimi,
+kapasite kuralları ve rezervasyon çizelgeleyicisini kullanır.
+
+Her koşu `run.json`, `orders.json`, `events.jsonl`, `decisions.jsonl`,
+`samples.jsonl`, `metrics.json`, `final_snapshot.json` üretir. Konfigürasyon,
+çözülmüş sipariş/kesinti listesi, ayrı rastgelelik tohumları, git sürümü ve kaynak
+özeti kaydedilir. Sonuçlar `experiments/results/` altında git dışında tutulur.
+Web'deki **Kayıtları indir** aynı kayıtları ve kullanıcı komutlarını ZIP olarak verir.
+Tamamlanan/kapatılan/sıfırlanan web oturumları ayrıca `experiments/results/live/`
+altına arşivlenir. Devam eden oturumlar sunucu belleğindedir.
+
+## Kodun konumu
+
+| Konum | İşlev |
+|---|---|
+| `apps/web` | React/Three.js, dashboard, kamera/seçim, salt snapshot istemci durumu |
+| `apps/api/app/research` | Oturumlar, doğrulanmış komutlar, REST, WebSocket ve dışa aktarma |
+| `apps/runner` | Aynı çekirdekle tek/çoklu deney CLI'si |
+| `packages/warehouse_core` | Domain, simülasyon, fiziksel kaynaklar, koordinasyon, planlama, politikalar, optimizasyon, tahmin, kayıt |
+| `packages/warehouse_core/legacy` | Taşınmış eski navigasyon/mağaza motoru; FSM, lift, trafik, konveyör |
+| `packages/contracts` | V2 Python/TypeScript/JSON sözleşmeleri ve eski v1 sözleşmeleri |
+| `experiments` | Sekiz senaryo ve eşleştirilmiş sonuç analizi |
+| `tests` | Yeni çekirdek ve API entegrasyon testleri |
+| `docs`, `scripts` | Mimari, protokol, doğrulama, yerleşim ve sözleşme üretimi |
+
+Ayrıntılar: [mimari ve durum sahipliği](docs/architecture.md),
+[klasör/özellik rehberi](docs/folder-guide.md), [senaryo biçimi](docs/scenarios.md),
+[deney protokolü](docs/experiment-protocol.md),
+[geçiş haritası](docs/migration-map.md), [doğrulama kaydı](docs/validation.md).
+
+## Modelin kapsamı
+
+Araştırma modeli tek yönlü, sabit hızlı ortak bant, eşit uzunlukta taşıyıcılar ve
+robot başına ayrılmış servis koridorları kullanır. Genel robot yol çakışması,
+araştırma modelinde asansör planlama, stok yenileme ve sevkiyat sonrası dağıtım
+bu sürümün kapsamında değildir. Şarj, tamamlanan görev sayısına bağlı başlangıç
+modelidir; ayrıntılı batarya/enerji modeli değildir. Tahmin fiziksel süreler ve
+geçmiş ortalamasıdır; makine öğrenmesi henüz eklenmedi.
+
+Sabit adım süresi varsayılan 0,5 s'dir. İşlem süreleri yukarı yuvarlanır.
+Canlı `--time-limit-ms` sınırı bir aday değerlendirmesinin sonunda kontrol edilen
+yumuşak sınırdır; tekrarlanabilir deneylerde yalnızca sabit `--budget` kullanın.
+Açık siparişler ortalamadan ayrı sayılır ve aday değerlendirmesinde cezalandırılır.
+
+Yerel araştırma kullanımı hedeflenir: oturumlar kullanıcı hesabına bağlı değildir,
+8 oturum sınırı vardır ve tek API worker kullanılır. Docker'ı kökten
+`docker build -f apps/api/Dockerfile .` ile oluşturun. Üretim barındırmasında kalıcı
+sonuç diski ve erişim denetimi ayrıca yapılandırılmalıdır.
+
+Özgün proje açıklaması [arşivde](docs/legacy-readme.md), lisans [MIT](LICENSE).
