@@ -1,140 +1,104 @@
-# WareTwin — depo koordinasyon ve optimizasyon laboratuvarı
+# WareTwin
 
-Aynı siparişin farklı bölgelerdeki ürünlerinin hazırlanmasını, ortak konveyöre
-katılmasını, birleştirilmesini ve paketlenmesini birlikte araştıran çalışan sistem.
-Operasyonun yetkili kaynağı Python çekirdeğidir. Web ve arayüzsüz deney çalıştırıcısı
-aynı `Simulation.step()` olay modelini kullanır.
+**A warehouse coordination laboratory for multi-zone order preparation, shared conveyors and packing.**
 
-Mevcut mağaza, büyük depo, asansörler, kamera/yürüyüş kontrolleri ve robot görselleri
-korundu. Bunlar `#warehouse` / `#shop` üzerinden erişilen navigasyon/mağaza modudur.
-Yeni `#research` ekranı deneyler için ayrılmış bölge koridorlarını ve ortak bant
-modelini gösterir. Bu iki modelin ölçümleri karıştırılmaz.
+WareTwin is an active software engineering and research project. Its Python simulation core is the source of operational state; an interactive React/TypeScript interface and a headless experiment runner use the same event model. It is a local research prototype, with deployment and access-control work still required.
 
-## Kurulum ve başlatma
+## What is implemented
 
-Python 3.11+ ve Node 20+ kullanın. Komutlar proje kökünden çalıştırılır.
+- Zone agents coordinate picking, robot availability, local buffers, conveyor reservations, order consolidation and packing.
+- Five policies share the same resource rules: `fifo`, `order_aware`, `gwo_conveyor`, `local_search` and `gwo_integrated`.
+- Seeded scenarios cover demand imbalance, multi-zone orders, restricted buffers and resource interruptions.
+- Research sessions support pause, resume, single-step execution, order injection, disruptions and trace exports.
+- A separate warehouse/store mode preserves the existing 3D navigation, lifts, robot fleet and commerce flows. Its metrics are separate from research experiments.
+
+GWO is a heuristic; the implementation does not guarantee an optimal schedule. Duration prediction uses physical timing and historical averages. A learned ML predictor is future work.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Web[React / TypeScript interface] -->|commands| API[FastAPI research sessions]
+    API --> Core[Python simulation core]
+    Core -->|snapshots and events| API
+    API -->|REST / WebSocket| Web
+    Runner[Headless experiment runner] --> Core
+    Core --> Artifacts[Metrics and event traces]
+```
+
+The browser displays server snapshots rather than running an independent research engine. Fixed evaluation budgets and separate scenario/algorithm seeds support repeatable comparisons. The optional wall-clock search limit is a soft live limit and should be omitted for reproducibility.
+
+## Run locally
+
+Use Python 3.11+ and Node.js 20+. Run these commands from the repository root:
 
 ```bash
 python3 -m venv apps/api/.venv
 apps/api/.venv/bin/python -m pip install -r apps/api/requirements-dev.lock
 npm --prefix apps/web ci
-
-# Mağaza, mevcut büyük depo, araştırma API'si ve web birlikte
 bash start.sh large
-# http://127.0.0.1:5173/#research
-# http://127.0.0.1:5173/#warehouse
-# http://127.0.0.1:8000/docs
 ```
 
-Bağımlılıklar zaten kuruluysa `npm run dev` de aynı başlatıcıyı çalıştırır.
-`backend → apps/api`, `frontend → apps/web` eski yollar için uyumluluk bağlantılarıdır.
-Windows'ta doğrudan `apps` yollarını ve `dev.ps1` dosyasını kullanın.
+Open the research interface at `http://127.0.0.1:5173/#research`, the warehouse at `http://127.0.0.1:5173/#warehouse`, or API documentation at `http://127.0.0.1:8000/docs`.
 
-Araştırma API'sini mağaza/veritabanı olmadan ayrı çalıştırmak için iki terminal:
+To run only the research API and web client, use two terminals:
 
 ```bash
 apps/api/.venv/bin/python -m uvicorn apps.api.research:app --host 127.0.0.1 --port 8000
 npm run dev:web
 ```
 
-`#research` ekranında senaryo, politika ve iki tohumu seçip **Deneyi oluştur**
-düğmesine basın. Oturum başlangıçta duraklatılır. Devam, duraklat, tek adım,
-10 simülasyon saniyesi, sıfırlama, hız ve kesinti komutları sunucuya gönderilir.
-Bağlantı koparsa son doğrulanmış durum gösterilir; tarayıcı bağımsız motor başlatmaz.
+For Windows, use the `apps/` paths and the existing `dev.ps1` launcher. The `backend` and `frontend` compatibility links point to `apps/api` and `apps/web`.
 
-## Mevcut büyük depo arayüzü
+### Configuration
 
-`http://127.0.0.1:5173/#warehouse` mevcut raf, robot ve dış bant yerleşimini açar.
-Daraltılabilir operasyon listesi, seçime bağlı ayrıntılar, sipariş/bileşen takibi,
-konveyör ve paketleme durumları, kamera/katman kontrolleri ile filtreli olay ve
-karar kayıtları bu ekrandadır. 3D sahne ve listeler aynı seçimi kullanır;
-veriler mevcut motor ve commerce servisinden gelir. Bağlantı kesildiğinde eski
-veri işaretlenir ve komutlar kapanır.
+See [`apps/api/.env.example`](apps/api/.env.example) and [`apps/web/.env.example`](apps/web/.env.example). The local rule-based/simulated paths do not require an AI API key. Keep credentials in ignored local environment files. Public hosting needs authentication, explicit allowed origins and persistent result storage; CORS is not authentication. Run one API worker because research sessions live in server memory.
 
-[Kullanım, veri kaynakları ve dosya rehberi](docs/warehouse-ui.md) ·
-[Tarayıcı ve test doğrulaması](validation/warehouse-ui.md).
+## Reproducible experiments
 
-## Doğrulama
+```bash
+# One seeded run
+apps/api/.venv/bin/python -m apps.runner run --scenario multi_zone --policy fifo --seed 42
+
+# Small comparison across all five policies
+apps/api/.venv/bin/python -m apps.runner batch --scenario balanced --policy all --seeds 2 --budget 6
+
+# Analyse a completed batch
+apps/api/.venv/bin/python experiments/analyze.py experiments/results/RUN_DIRECTORY/summary.csv
+```
+
+Runs produce configuration, seeds, version information, order/event/decision traces and metrics under ignored `experiments/results/`. Web exports also include user commands. Active sessions are in memory; completed/reset sessions are archived to the result directory. Open orders are reported separately from completed-order averages.
+
+## Validate
 
 ```bash
 apps/api/.venv/bin/python -m pytest tests apps/api/tests -q
 npm run test:web
 npm run build
 apps/api/.venv/bin/python scripts/export_contracts.py --check
-# Hepsi: npm run validate
+# Combined local validation
+npm run validate
 ```
 
-Testler ürün korunumunu, robot sahipliğini, tam sipariş kapasite ayırmasını,
-birleşme takip mesafesini, kesinti/yeniden başlatmayı, aday izolasyonunu,
-tekrarlanabilirliği ve API/runner olay eşliğini kontrol eder.
-Eski motorun navigasyon, asansör, mağaza ve konveyör regresyonları korunur.
+Tests cover conservation rules, resource ownership, reservations, disruptions, reproducibility, API/runner parity and the preserved navigation/commerce engine. CI executes backend and frontend checks; inspect the Actions result for the commit being reviewed.
 
-## Simülasyon ve deneyler
+## Repository map
 
-Çekirdek standart Python kütüphanesiyle çalışır; CLI için FastAPI veya 3D gerekmez.
+| Path | Purpose |
+| --- | --- |
+| `packages/warehouse_core/` | Domain, simulation, coordination, resources, scheduling, policies and telemetry |
+| `packages/warehouse_core/legacy/` | Preserved navigation, fleet, lift and commerce simulation |
+| `packages/contracts/` | Python, TypeScript and JSON contracts |
+| `apps/api/` | FastAPI services and API regression tests |
+| `apps/web/` | React interface and 3D views |
+| `apps/runner/` | Single-run and batch experiment CLI |
+| `experiments/` | Scenarios and paired-seed analysis |
+| `tests/`, `docs/`, `validation/` | Core tests, design documentation and historical validation records |
 
-```bash
-# Tek koşu
-apps/api/.venv/bin/python -m apps.runner run --scenario multi_zone --policy fifo --seed 42
+## Scope and next work
 
-# Küçük doğrulama: 2 dış tohum, 5 politika, sabit 6 aday değerlendirmesi
-apps/api/.venv/bin/python -m apps.runner batch --scenario balanced --policy all --seeds 2 --budget 6
+The research model uses a one-way, fixed-speed shared belt, equal-size carriers and dedicated robot service lanes. General robot path collisions, research-mode lift scheduling, replenishment and distribution after shipping are outside this model. Charging is a task-count approximation. Simulation steps default to 0.5 seconds and durations are rounded upward.
 
-# Ana karşılaştırmayı başlat: 8 senaryo × 30 dış tohum × 5 politika
-apps/api/.venv/bin/python -m apps.runner batch --scenario all --policy all --seed 100 --seeds 30 --algorithm-seed 7 --budget 24
+Future work includes measured learned duration prediction, expanded physical models and deployment hardening. Existing screenshots and validation logs document particular revisions and should not be read as current benchmark guarantees.
 
-# Eşleştirilmiş tohum farkları, açık siparişler ve bootstrap aralığı
-apps/api/.venv/bin/python experiments/analyze.py experiments/results/KOŞU_DİZİNİ/summary.csv
-```
-
-Politikalar: `fifo`, `order_aware`, `gwo_conveyor`, `local_search`, `gwo_integrated`.
-GWO bir sezgiseldir; optimum garantisi vermez. Bütün yöntemler aynı robot seçimi,
-kapasite kuralları ve rezervasyon çizelgeleyicisini kullanır.
-
-Her koşu `run.json`, `orders.json`, `events.jsonl`, `decisions.jsonl`,
-`samples.jsonl`, `metrics.json`, `final_snapshot.json` üretir. Konfigürasyon,
-çözülmüş sipariş/kesinti listesi, ayrı rastgelelik tohumları, git sürümü ve kaynak
-özeti kaydedilir. Sonuçlar `experiments/results/` altında git dışında tutulur.
-Web'deki **Kayıtları indir** aynı kayıtları ve kullanıcı komutlarını ZIP olarak verir.
-Tamamlanan/kapatılan/sıfırlanan web oturumları ayrıca `experiments/results/live/`
-altına arşivlenir. Devam eden oturumlar sunucu belleğindedir.
-
-## Kodun konumu
-
-| Konum | İşlev |
-|---|---|
-| `apps/web` | React/Three.js, dashboard, kamera/seçim, salt snapshot istemci durumu |
-| `apps/api/app/research` | Oturumlar, doğrulanmış komutlar, REST, WebSocket ve dışa aktarma |
-| `apps/runner` | Aynı çekirdekle tek/çoklu deney CLI'si |
-| `packages/warehouse_core` | Domain, simülasyon, fiziksel kaynaklar, koordinasyon, planlama, politikalar, optimizasyon, tahmin, kayıt |
-| `packages/warehouse_core/legacy` | Taşınmış eski navigasyon/mağaza motoru; FSM, lift, trafik, konveyör |
-| `packages/contracts` | V2 Python/TypeScript/JSON sözleşmeleri ve eski v1 sözleşmeleri |
-| `experiments` | Sekiz senaryo ve eşleştirilmiş sonuç analizi |
-| `tests` | Yeni çekirdek ve API entegrasyon testleri |
-| `docs`, `scripts` | Mimari, protokol, doğrulama, yerleşim ve sözleşme üretimi |
-
-Ayrıntılar: [mimari ve durum sahipliği](docs/architecture.md),
-[klasör/özellik rehberi](docs/folder-guide.md), [senaryo biçimi](docs/scenarios.md),
-[deney protokolü](docs/experiment-protocol.md),
-[geçiş haritası](docs/migration-map.md), [doğrulama kaydı](docs/validation.md).
-
-## Modelin kapsamı
-
-Araştırma modeli tek yönlü, sabit hızlı ortak bant, eşit uzunlukta taşıyıcılar ve
-robot başına ayrılmış servis koridorları kullanır. Genel robot yol çakışması,
-araştırma modelinde asansör planlama, stok yenileme ve sevkiyat sonrası dağıtım
-bu sürümün kapsamında değildir. Şarj, tamamlanan görev sayısına bağlı başlangıç
-modelidir; ayrıntılı batarya/enerji modeli değildir. Tahmin fiziksel süreler ve
-geçmiş ortalamasıdır; makine öğrenmesi henüz eklenmedi.
-
-Sabit adım süresi varsayılan 0,5 s'dir. İşlem süreleri yukarı yuvarlanır.
-Canlı `--time-limit-ms` sınırı bir aday değerlendirmesinin sonunda kontrol edilen
-yumuşak sınırdır; tekrarlanabilir deneylerde yalnızca sabit `--budget` kullanın.
-Açık siparişler ortalamadan ayrı sayılır ve aday değerlendirmesinde cezalandırılır.
-
-Yerel araştırma kullanımı hedeflenir: oturumlar kullanıcı hesabına bağlı değildir,
-8 oturum sınırı vardır ve tek API worker kullanılır. Docker'ı kökten
-`docker build -f apps/api/Dockerfile .` ile oluşturun. Üretim barındırmasında kalıcı
-sonuç diski ve erişim denetimi ayrıca yapılandırılmalıdır.
-
-Özgün proje açıklaması [arşivde](docs/legacy-readme.md), lisans [MIT](LICENSE).
+[Architecture](docs/architecture.md) · [Experiment protocol](docs/experiment-protocol.md) · [Scenario format](docs/scenarios.md) · [Warehouse interface](docs/warehouse-ui.md) · [Türkçe](README.tr.md) · [MIT license](LICENSE)
